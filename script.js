@@ -1,6 +1,7 @@
-let todos = [];
-let stars = [];
-let ratings = [];
+let stat_responses = [[], [], []];
+const STARS_INDEX = 0;
+const RATINGS_INDEX = 1;
+const TODOS_INDEX = 2;
 const UPDATED_EPOCH = new Date("2017-04-01T00:00:00Z");
 
 console.log("Script loaded");
@@ -11,11 +12,11 @@ console.log("Script loaded");
     const response = await originalFetch(...args);
     const url = args[0];
     if (url.includes("todos")) {
-      todos = await response.clone().json();
+      stat_responses[TODOS_INDEX] = await response.clone().json();
     } else if (url.includes("stars")) {
-      stars = await response.clone().json();
+      stat_responses[STARS_INDEX] = await response.clone().json();
     } else if (url.includes("ratings")) {
-      ratings = await response.clone().json();
+      stat_responses[RATINGS_INDEX] = await response.clone().json();
     }
     return response;
   };
@@ -29,53 +30,45 @@ document.addEventListener("DOMContentLoaded", () => {
   } else {
     console.error("Stats table not found");
   }
-  let todosTableLength = 0;
-  let starsTableLength = 0;
-  let ratingsTableLength = 0;
+  let tableLengths = [0, 0, 0];
   const observer = new MutationObserver((mutationsList, observer) => {
-    console.log("Mutation observed");
-    console.log(statsTable);
-    const starsTable =
-      statsTable.children[0].children[0].querySelector("tbody");
-    const prevStarsTableLength = starsTableLength;
-    starsTableLength = starsTable.children.length;
-    const ratingsTable =
-      statsTable.children[0].children[1].querySelector("tbody");
-    const prevRatingsTableLength = ratingsTableLength;
-    ratingsTableLength = ratingsTable.children.length;
-    const todosTable =
-      statsTable.children[0].children[2].querySelector("tbody");
-    const prevTodosTableLength = todosTableLength;
-    todosTableLength = todosTable.children.length;
-    console.log("ratingsTableLength:", ratingsTableLength);
-    if (ratingsTable && ratingsTableLength > prevRatingsTableLength) {
-      for (const rating of ratings.data) {
-        const userId = rating.user.id;
-        const ts = rating.updatedAt;
-        const userAnchor = ratingsTable.querySelector(
-          `a[href='/user/${userId}']`
-        );
-        if (userAnchor) {
-          const td = document.createElement("td");
-          const div = document.createElement("div");
-          div.className = "small text-nowrap";
-          const tsDate = new Date(ts);
-          div.textContent =
-            tsDate < UPDATED_EPOCH
-              ? "pre 2017"
-              : new Intl.DateTimeFormat("en-US", {
-                  year: "numeric",
-                  month: "short",
-                }).format(new Date(ts));
-          td.appendChild(div);
-          userAnchor.parentElement.parentElement.appendChild(div);
-          userAnchor.parentElement.parentElement.children[1].classList.add(
-            "text-nowrap"
+    for (let statIndex = 0; statIndex < stat_responses.length; statIndex++) {
+      const tableBody =
+        statsTable.children[0].children[statIndex].querySelector("tbody");
+      const prevLength = tableLengths[statIndex];
+      const currentLength = tableBody.children.length;
+      tableLengths[statIndex] = currentLength;
+      if (tableBody && currentLength > prevLength) {
+        for (const stat of stat_responses[statIndex].data) {
+          const userId = stat.user.id;
+          const ts = stat.updatedAt;
+          const userAnchor = tableBody.querySelector(
+            `a[href='/user/${userId}']`
           );
+          if (userAnchor) {
+            const td = document.createElement("td");
+            const div = document.createElement("div");
+            div.className = "small text-nowrap";
+            const tsDate = new Date(ts);
+            div.textContent =
+              tsDate < UPDATED_EPOCH
+                ? "pre 2017"
+                : new Intl.DateTimeFormat("en-US", {
+                    year: "numeric",
+                    month: "short",
+                  }).format(new Date(ts));
+            td.appendChild(div);
+            userAnchor.parentElement.parentElement.appendChild(div);
+            userAnchor.parentElement.parentElement.children[1].classList.add(
+              "text-nowrap"
+            );
+          } else {
+            console.debug("User anchor not found for userId:", userId);
+          }
         }
+      } else {
+        console.debug("Stat table not found", statIndex);
       }
-    } else {
-      console.error("Ratings table not found");
     }
   });
 

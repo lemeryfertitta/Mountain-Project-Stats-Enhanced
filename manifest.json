@@ -3,13 +3,7 @@
   "name": "Mountain Project Stat Dates",
   "version": "1.0",
   "description": "Show dates for Mountain Project grades, stars, and todos.",
-  "action": {
-    "default_icon": {
-      "16": "icon16.png",
-      "48": "icon48.png",
-      "128": "icon128.png"
-    }
-  },
+  "action": {},
   "content_scripts": [
     {
       "world": "MAIN",
