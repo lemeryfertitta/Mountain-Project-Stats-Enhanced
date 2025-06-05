@@ -39,6 +39,14 @@ function addHeaderElements(tableBody, headers) {
         td.classList.toggle("ascending", ascending);
         sortTableByName(tableBody, ascending);
       });
+    } else if (header === "Stars") {
+      td.addEventListener("click", () => {
+        const ascending = !td.classList.contains("ascending");
+        td.classList.toggle("ascending", ascending);
+        sortTableByScore(tableBody, ascending);
+      });
+    } else if (header === "Grade") {
+      // TODO: Implement sorting by grade
     }
     tr.appendChild(td);
   }
@@ -62,6 +70,17 @@ function sortTableByName(tableBody, ascending) {
     const nameA = a.querySelector("td:first-child a").textContent.toLowerCase();
     const nameB = b.querySelector("td:first-child a").textContent.toLowerCase();
     return ascending ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
+  });
+  rows.unshift(tableBody.querySelector("tr")); // Keep header row at the top
+  tableBody.replaceChildren(...rows);
+}
+
+function sortTableByScore(tableBody, ascending) {
+  const rows = Array.from(tableBody.querySelectorAll("tr")).slice(1);
+  rows.sort((a, b) => {
+    const scoreA = parseFloat(a.getAttribute("data-score")) || 0;
+    const scoreB = parseFloat(b.getAttribute("data-score")) || 0;
+    return ascending ? scoreA - scoreB : scoreB - scoreA;
   });
   rows.unshift(tableBody.querySelector("tr")); // Keep header row at the top
   tableBody.replaceChildren(...rows);
@@ -120,6 +139,12 @@ document.addEventListener("DOMContentLoaded", () => {
                   }).format(new Date(ts));
             td.appendChild(div);
             userAnchor.parentElement.parentElement.appendChild(td);
+            if (statIndex === STARS_INDEX) {
+              userAnchor.parentElement.parentElement.setAttribute(
+                "data-score",
+                stat.score
+              );
+            }
           } else {
             console.debug("User anchor not found for userId:", userId);
           }
