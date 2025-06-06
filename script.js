@@ -1,160 +1,191 @@
-let stat_responses = [[], [], []];
+let statResponses = [{}, {}, {}];
+const UNKOWN_REQUEST_INDEX = -1;
 const STARS_INDEX = 0;
 const RATINGS_INDEX = 1;
 const TODOS_INDEX = 2;
+const TICKS_INDEX = 3;
 const UPDATED_EPOCH = new Date("2017-04-01T00:00:00Z");
+
+function getRatingValue(statResponse) {
+  const ratings = [
+    "rockRating",
+    "boulderRating",
+    "iceRating",
+    "aidRating",
+    "mixedRating",
+    "snowRating",
+  ];
+  for (const rating of ratings) {
+    if (statResponse[rating]) {
+      return statResponse[rating];
+    }
+  }
+}
+
+function getResponseIndex(url) {
+  if (url.includes("stars")) {
+    return STARS_INDEX;
+  } else if (url.includes("ratings")) {
+    return RATINGS_INDEX;
+  } else if (url.includes("todos")) {
+    return TODOS_INDEX;
+  } else {
+    return UNKOWN_REQUEST_INDEX;
+  }
+}
+
+function getResponseIndexFromTrId(id) {
+  if (!id) {
+    return TODOS_INDEX;
+  } else if (id.includes("stars")) {
+    return STARS_INDEX;
+  } else if (id.includes("ratings")) {
+    return RATINGS_INDEX;
+  } else {
+    return UNKOWN_REQUEST_INDEX;
+  }
+}
 
 (function () {
   const originalFetch = window.fetch;
   window.fetch = async function (...args) {
     const response = await originalFetch(...args);
-    const url = args[0];
-    if (url.includes("todos")) {
-      stat_responses[TODOS_INDEX] = await response.clone().json();
-    } else if (url.includes("stars")) {
-      stat_responses[STARS_INDEX] = await response.clone().json();
-    } else if (url.includes("ratings")) {
-      stat_responses[RATINGS_INDEX] = await response.clone().json();
+    const responseIndex = getResponseIndex(args[0]);
+    if (responseIndex != UNKOWN_REQUEST_INDEX) {
+      const responseJson = await response.clone().json();
+      if (!responseJson.data) {
+        return response;
+      }
+      for (const dataItem of responseJson.data) {
+        if (!dataItem.user || !dataItem.user.id) {
+          continue;
+        }
+        statResponses[responseIndex][dataItem.user.id] = dataItem;
+      }
     }
     return response;
   };
 })();
 
-function addHeaderElements(tableBody, headers) {
-  const tr = document.createElement("tr");
-  for (const header of headers) {
-    const td = document.createElement("td");
-    const strong = document.createElement("strong");
-    strong.textContent = header;
-    td.appendChild(strong);
-    if (header === "Date") {
-      td.addEventListener("click", () => {
-        const ascending = !td.classList.contains("ascending");
-        td.classList.toggle("ascending", ascending);
-        sortTableByDate(tableBody, ascending);
-      });
-    } else if (header === "Name") {
-      td.addEventListener("click", () => {
-        const ascending = !td.classList.contains("ascending");
-        td.classList.toggle("ascending", ascending);
-        sortTableByName(tableBody, ascending);
-      });
-    } else if (header === "Stars") {
-      td.addEventListener("click", () => {
-        const ascending = !td.classList.contains("ascending");
-        td.classList.toggle("ascending", ascending);
-        sortTableByScore(tableBody, ascending);
-      });
-    } else if (header === "Grade") {
-      // TODO: Implement sorting by grade
+function sortTable(tableBody, ascending, sortBy) {
+  const rows = Array.from(tableBody.querySelectorAll("tr")).slice(1);
+  rows.sort((a, b) => {
+    if (sortBy === "Date") {
+      const dateA = new Date(a.querySelector("td:last-child div").textContent);
+      const dateB = new Date(b.querySelector("td:last-child div").textContent);
+      return ascending ? dateB - dateA : dateA - dateB;
+    } else if (sortBy === "Name") {
+      const nameA = a
+        .querySelector("td:first-child a")
+        .textContent.toLowerCase();
+      const nameB = b
+        .querySelector("td:first-child a")
+        .textContent.toLowerCase();
+      return ascending
+        ? nameA.localeCompare(nameB)
+        : nameB.localeCompare(nameA);
+    } else if (sortBy === "Stars") {
+      const scoreA = parseFloat(a.getAttribute("data-score")) || 0;
+      const scoreB = parseFloat(b.getAttribute("data-score")) || 0;
+      return ascending ? scoreA - scoreB : scoreB - scoreA;
+    } else if (sortBy === "Grade") {
+      const ratingA = parseFloat(a.getAttribute("data-rating")) || 0;
+      const ratingB = parseFloat(b.getAttribute("data-rating")) || 0;
+      return ascending ? ratingA - ratingB : ratingB - ratingA;
+    } else {
+      console.warn(`Unknown sortBy: ${sortBy}`);
+      return 0; // No sorting if unknown
     }
-    tr.appendChild(td);
-  }
-  tableBody.insertBefore(tr, tableBody.firstChild);
-}
-
-function sortTableByDate(tableBody, ascending) {
-  const rows = Array.from(tableBody.querySelectorAll("tr")).slice(1);
-  rows.sort((a, b) => {
-    const dateA = new Date(a.querySelector("td:last-child div").textContent);
-    const dateB = new Date(b.querySelector("td:last-child div").textContent);
-    return ascending ? dateB - dateA : dateA - dateB;
   });
-  rows.unshift(tableBody.querySelector("tr")); // Keep header row at the top
+  rows.unshift(tableBody.querySelector("tr"));
   tableBody.replaceChildren(...rows);
 }
 
-function sortTableByName(tableBody, ascending) {
-  const rows = Array.from(tableBody.querySelectorAll("tr")).slice(1);
-  rows.sort((a, b) => {
-    const nameA = a.querySelector("td:first-child a").textContent.toLowerCase();
-    const nameB = b.querySelector("td:first-child a").textContent.toLowerCase();
-    return ascending ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
-  });
-  rows.unshift(tableBody.querySelector("tr")); // Keep header row at the top
-  tableBody.replaceChildren(...rows);
-}
-
-function sortTableByScore(tableBody, ascending) {
-  const rows = Array.from(tableBody.querySelectorAll("tr")).slice(1);
-  rows.sort((a, b) => {
-    const scoreA = parseFloat(a.getAttribute("data-score")) || 0;
-    const scoreB = parseFloat(b.getAttribute("data-score")) || 0;
-    return ascending ? scoreA - scoreB : scoreB - scoreA;
-  });
-  rows.unshift(tableBody.querySelector("tr")); // Keep header row at the top
-  tableBody.replaceChildren(...rows);
-}
-
-document.addEventListener("DOMContentLoaded", () => {
+function addHeaderElements(statsTable, observer) {
   const headers = [
     ["Name", "Stars", "Date"],
     ["Name", "Grade", "Date"],
     ["Name", "Date"],
   ];
-  const statsTable = document.getElementsByClassName("onx-stats-table")[0];
-  if (!statsTable) {
-    console.error("Stats table not found");
-    return;
+  for (let tableIndex = 0; tableIndex < headers.length; tableIndex++) {
+    const tr = document.createElement("tr");
+    tr.id = `table-header-${tableIndex}`;
+    for (const header of headers[tableIndex]) {
+      const td = document.createElement("td");
+      const strong = document.createElement("strong");
+      strong.textContent = `${header} ↕`;
+      td.appendChild(strong);
+      td.addEventListener("click", () => {
+        const ascending = !td.classList.contains("ascending");
+        td.classList.toggle("ascending", ascending);
+        observer.disconnect(); // Stop observing while sorting
+        const tableBody = statsTable.querySelectorAll("tbody")[tableIndex];
+        sortTable(tableBody, ascending, header);
+        observer.observe(statsTable, {
+          childList: true,
+          subtree: true,
+          attributes: false,
+        });
+      });
+      tr.appendChild(td);
+    }
+    const tableBody = statsTable.querySelectorAll("tbody")[tableIndex];
+    tableBody.insertBefore(tr, tableBody.firstChild);
   }
-  let tableLengths = [0, 0, 0];
-  let tableHeadersAdded = [false, false, false];
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const statsTable = document.querySelector(".onx-stats-table");
   const observer = new MutationObserver((mutationsList, observer) => {
-    for (let statIndex = 0; statIndex < stat_responses.length; statIndex++) {
-      const statsDiv = statsTable.children[0].children[statIndex];
-      const tableBody = statsDiv.querySelector("tbody");
-      const prevLength = tableLengths[statIndex];
-      if (!tableHeadersAdded[statIndex]) {
-        addHeaderElements(tableBody, headers[statIndex]);
-        tableHeadersAdded[statIndex] = true;
-      }
-      const currentLength = tableBody.children.length;
-      tableLengths[statIndex] = currentLength;
-      if (
-        tableBody &&
-        currentLength > prevLength &&
-        stat_responses[statIndex]
-      ) {
-        for (const stat of stat_responses[statIndex].data) {
-          if (!stat || !stat.user || !stat.user.id) {
-            console.debug("Invalid stat data:", stat);
+    for (const mutation of mutationsList) {
+      for (const node of mutation.addedNodes) {
+        const responseIndex = getResponseIndexFromTrId(node.id);
+        if (
+          node.nodeName === "TR" &&
+          responseIndex != UNKOWN_REQUEST_INDEX &&
+          !node.querySelector(".date-col")
+        ) {
+          // Add date column to stars, ratings, and todos entries as they are added
+          const td = document.createElement("td");
+          td.classList.add("date-col");
+          const div = document.createElement("div");
+          div.className = "small";
+          const userId = node.querySelector("a")?.href?.split("/").pop();
+          if (!userId) {
+            console.debug(node);
+            console.debug("No user ID found in node:", node);
             continue;
           }
-          const userId = stat.user.id;
-          const ts = stat.updatedAt;
-          const userAnchor = tableBody.querySelector(
-            `a[href='/user/${userId}']`
-          );
-          if (userAnchor) {
-            const td = document.createElement("td");
-            const div = document.createElement("div");
-            div.className = "small";
-            const tsDate = new Date(ts);
-            div.textContent =
-              tsDate < UPDATED_EPOCH
-                ? "pre 2017"
-                : new Intl.DateTimeFormat("en-US", {
-                    year: "numeric",
-                    month: "short",
-                  }).format(new Date(ts));
-            td.appendChild(div);
-            userAnchor.parentElement.parentElement.appendChild(td);
-            if (statIndex === STARS_INDEX) {
-              userAnchor.parentElement.parentElement.setAttribute(
-                "data-score",
-                stat.score
-              );
-            }
-          } else {
-            console.debug("User anchor not found for userId:", userId);
+          const statResponse = statResponses[responseIndex][userId];
+          const tsDate = new Date(statResponse.updatedAt);
+          div.textContent =
+            tsDate < UPDATED_EPOCH
+              ? "pre 2017"
+              : new Intl.DateTimeFormat("en-US", {
+                  year: "numeric",
+                  month: "short",
+                }).format(tsDate);
+          td.appendChild(div);
+          node.appendChild(td);
+          if (responseIndex === STARS_INDEX) {
+            node.setAttribute("data-score", statResponse.score);
+          } else if (responseIndex === RATINGS_INDEX) {
+            node.setAttribute("data-rating", getRatingValue(statResponse));
           }
+        } else if (node.nodeName === "DIV" && node.classList.contains("row")) {
+          // Populate headers once the tables have been added
+          addHeaderElements(statsTable, observer);
+          // Adjust table sizing on larger screens
+          node.children[STARS_INDEX].classList.replace("col-lg-2", "col-lg-3");
+          node.children[RATINGS_INDEX].classList.replace(
+            "col-lg-2",
+            "col-lg-3"
+          );
+          node.children[TICKS_INDEX].classList.replace("col-lg-6", "col-lg-4");
         }
-      } else {
-        console.debug("Stat table not found", statIndex);
       }
     }
   });
-
   if (statsTable) {
     observer.observe(statsTable, {
       childList: true,
