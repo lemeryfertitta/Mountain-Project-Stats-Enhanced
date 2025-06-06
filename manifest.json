@@ -1,9 +1,15 @@
 {
+  "homepage_url": "https://github.com/lemeryfertitta/Mountain-Project-Stats-Enhanced",
   "manifest_version": 3,
-  "name": "Mountain Project Stat Dates",
+  "name": "Mountain Project Stats Enhanced",
   "version": "1.0",
-  "description": "Show dates for Mountain Project grades, stars, and todos.",
-  "action": {},
+  "description": "Dated and sortable grades, stars, and todos for Mountain Project routes.",
+  "icons": {
+    "16": "media/icon-16.png",
+    "32": "media/icon-32.png",
+    "48": "media/icon-48.png",
+    "128": "media/icon-128.png"
+  },
   "content_scripts": [
     {
       "world": "MAIN",
