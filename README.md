@@ -1,6 +1,8 @@
-# Mountain Project Stats Enhanced
+# ![icon](media/icon-32.png) Mountain Project Stats Enhanced
 
 This is a simple Chrome extension that adds dates to the stars, grades, and todos on the stats page of any Mountain Project route and makes these tables sortable by any column. The sizing of the columns on large screens is slightly adjusted to accommodate this additional info.
+
+![screenshot](media/screenshot.jpg)
 
 ## Installation
 
