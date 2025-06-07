@@ -4,7 +4,11 @@ const STARS_INDEX = 0;
 const RATINGS_INDEX = 1;
 const TODOS_INDEX = 2;
 const TICKS_INDEX = 3;
-const UPDATED_EPOCH = new Date("2017-04-01T00:00:00Z");
+const EPOCHS = [
+  new Date("2017-10-06T00:00:00Z"),
+  new Date("2017-03-21T00:00:00Z"),
+  new Date("2017-03-29T00:00:00Z"),
+];
 
 function getRatingValue(statResponse) {
   const ratings = [
@@ -158,13 +162,12 @@ document.addEventListener("DOMContentLoaded", () => {
           }
           const statResponse = statResponses[responseIndex][userId];
           const tsDate = new Date(statResponse.updatedAt);
+          const dateString = new Intl.DateTimeFormat("en-US", {
+            year: "numeric",
+            month: "short",
+          }).format(tsDate);
           div.textContent =
-            tsDate < UPDATED_EPOCH
-              ? "pre 2017"
-              : new Intl.DateTimeFormat("en-US", {
-                  year: "numeric",
-                  month: "short",
-                }).format(tsDate);
+            tsDate < EPOCHS[responseIndex] ? `≤ ${dateString}` : dateString;
           td.appendChild(div);
           node.appendChild(td);
           if (responseIndex === STARS_INDEX) {

@@ -26,56 +26,56 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="2.2722927"
-     inkscape:cx="80.095314"
-     inkscape:cy="99.8991"
+     inkscape:cx="80.095315"
+     inkscape:cy="99.899102"
      inkscape:window-width="1440"
      inkscape:window-height="847"
      inkscape:window-x="0"
      inkscape:window-y="25"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg5" />
+     inkscape:current-layer="svg5"
+     showgrid="false" />
   <!-- Background: Mountain Project blue -->
-  <rect
-     width="128"
-     height="128"
-     rx="24"
-     fill="#0073CF"
-     id="rect1" />
   <!-- Centered mountain silhouette: white fill, shifted up and left -->
   <polygon
-     points="60,44 74,70 88,52 104,96 32,96 "
+     points="32,96 60,44 74,70 88,52 104,96 "
      fill="#ffffff"
      stroke="#333333"
      stroke-width="3"
      id="polygon1"
-     transform="translate(-3.5206731,-9.241767)" />
+     transform="matrix(1.5326342,0,0,1.803789,-40.961581,-62.637878)"
+     style="fill:#336799;fill-opacity:1" />
   <!-- Bar chart (stats): Mountain Project dark blue, all bars contained within mountain -->
   <rect
-     x="50.440086"
-     y="71.437981"
-     width="6"
-     height="14"
+     x="34.597061"
+     y="80.533066"
+     width="11.809112"
+     height="27.349215"
      fill="#005288"
-     id="rect2" />
+     id="rect2"
+     style="stroke-width:1.96084;fill:#ffff94;fill-opacity:1" />
   <rect
-     x="58.440086"
-     y="61.437977"
-     width="6"
-     height="24"
+     x="50.342541"
+     y="60.997894"
+     width="11.809112"
+     height="46.884365"
      fill="#005288"
-     id="rect3" />
+     id="rect3"
+     style="stroke-width:1.96084;fill:#ffff94;fill-opacity:1" />
   <rect
-     x="66.440086"
-     y="77.437981"
-     width="6"
-     height="8"
+     x="66.08802"
+     y="92.254158"
+     width="11.809112"
+     height="15.628122"
      fill="#005288"
-     id="rect4" />
+     id="rect4"
+     style="stroke-width:1.96084;fill:#ffff94;fill-opacity:1" />
   <rect
-     x="74.440079"
-     y="67.437981"
-     width="6"
-     height="18"
+     x="81.833488"
+     y="72.718994"
+     width="11.809112"
+     height="35.163277"
      fill="#005288"
-     id="rect5" />
+     id="rect5"
+     style="stroke-width:1.96084;fill:#ffff94;fill-opacity:1" />
 </svg>
