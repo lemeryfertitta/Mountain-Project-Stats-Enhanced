@@ -2,6 +2,10 @@
 
 This is a simple Chrome extension that adds dates to the stars, grades, and todos on the stats page of any Mountain Project route and makes these tables sortable by any column. The sizing of the columns on large screens is slightly adjusted to accommodate this additional info.
 
+## Installation
+
+Add the extension to your Chrome browser from the [extension page](https://chromewebstore.google.com/detail/mountain-project-stats-en/cmlpgcdikcefgegfgehkhmigmcjocgka) or by cloning/downloading this repository and [adding it manually](https://developer.chrome.com/docs/extensions/get-started/tutorial/hello-world#load-unpacked).
+
 ## Use Cases
 
 - Determining what time of year a route is climbed when tick data is insufficient
