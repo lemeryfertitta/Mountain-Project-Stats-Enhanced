@@ -111,8 +111,12 @@
         return ascending ? ratingA - ratingB : ratingB - ratingA;
       } else if (sortBy === "Date/Notes") {
         // These dates are in the ticks table and are always in a strong tag
-        const dateA = new Date(a.querySelector("strong").textContent);
-        const dateB = new Date(b.querySelector("strong").textContent);
+        const dateA = new Date(
+          a.querySelector("td:last-child strong").textContent
+        );
+        const dateB = new Date(
+          b.querySelector("td:last-child strong").textContent
+        );
         return ascending ? dateB - dateA : dateA - dateB;
       } else {
         return 0;
