@@ -82,7 +82,7 @@
         const dateB = new Date(
           b.querySelector("td:last-child div").textContent
         );
-        return ascending ? dateB - dateA : dateA - dateB;
+        return ascending ? dateA - dateB : dateB - dateA;
       } else if (sortBy === "Name") {
         // Name can be null for private ticks
         const nameA = a
@@ -117,7 +117,7 @@
         const dateB = new Date(
           b.querySelector("td:last-child strong").textContent
         );
-        return ascending ? dateB - dateA : dateA - dateB;
+        return ascending ? dateA - dateB : dateB - dateA;
       } else {
         return 0;
       }
@@ -142,11 +142,25 @@
         strong.textContent = `${header} ↕`;
         td.appendChild(strong);
         td.addEventListener("click", () => {
+          // Reset arrow direction for all headers in the same table
+          for (const headerTd of tr.children) {
+            headerTd.children[0].textContent =
+              headerTd.children[0].textContent.replace(/ ↑| ↓/g, "↕");
+          }
+
+          // Toggle the clicked header's arrow direction and class
           const ascending = !td.classList.contains("ascending");
           td.classList.toggle("ascending", ascending);
-          observer.disconnect(); // Temporarily stop observing to ignore sorting changes
+          td.children[0].textContent = `${header} ${ascending ? "↑" : "↓"}`;
+
+          // Temporarily stop observing to ignore sorting changes
+          observer.disconnect();
+
+          // Sort the table body based on the clicked header
           const tableBody = statsTable.querySelectorAll("tbody")[tableIndex];
           sortTable(tableBody, ascending, header);
+
+          // Reconnect the observer after sorting
           observer.observe(statsTable, {
             childList: true,
             subtree: true,
