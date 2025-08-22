@@ -127,6 +127,7 @@
   }
 
   function addHeaderElements(statsTable, observer) {
+    const tableBodies = statsTable.querySelectorAll("tbody");
     const headers = [
       ["Name", "Stars", "Date"],
       ["Name", "Grade", "Date"],
@@ -157,7 +158,7 @@
           observer.disconnect();
 
           // Sort the table body based on the clicked header
-          const tableBody = statsTable.querySelectorAll("tbody")[tableIndex];
+          const tableBody = tableBodies[tableIndex];
           sortTable(tableBody, ascending, header);
 
           // Reconnect the observer after sorting
@@ -169,7 +170,7 @@
         });
         tr.appendChild(td);
       }
-      const tableBody = statsTable.querySelectorAll("tbody")[tableIndex];
+      const tableBody = tableBodies[tableIndex];
       tableBody.insertBefore(tr, tableBody.firstChild);
     }
   }
